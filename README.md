@@ -35,51 +35,6 @@ Graphical User Interface
 python -m src.interfaces.gui
 REST API Server
 python -m src.interfaces.api
-System Structure
-rkos/
-rkos/src/core/__init__.py
-rkos/src/core/engine.py
-rkos/src/core/processor.py
-rkos/src/core/scheduler.py
-rkos/src/logic/__init__.py
-rkos/src/logic/propositional.py
-rkos/src/logic/predicate.py
-rkos/src/logic/truth_tables.py
-rkos/src/logic/tautology.py
-rkos/src/logic/equivalence.py
-rkos/src/kernel/__init__.py
-rkos/src/kernel/bridge.py
-rkos/src/kernel/manager.py
-rkos/src/kernel/resources.py
-rkos/src/kernel/process.py
-rkos/src/monitoring/__init__.py
-rkos/src/monitoring/logger.py
-rkos/src/monitoring/metrics.py
-rkos/src/monitoring/dashboard.py
-rkos/src/security/__init__.py
-rkos/src/security/auth.py
-rkos/src/security/access.py
-rkos/src/security/encryption.py
-rkos/src/security/validation.py
-rkos/src/serialization/__init__.py
-rkos/src/serialization/json_serializer.py
-rkos/src/serialization/binary_serializer.py
-rkos/src/serialization/xml_serializer.py
-rkos/src/interfaces/__init__.py
-rkos/src/interfaces/cli.py
-rkos/src/interfaces/gui.py
-rkos/src/interfaces/api.py
-rkos/src/tests/__init__.py
-rkos/src/tests/test_logic_system.py
-rkos/src/tests/test_kernel_integration.py
-rkos/src/tests/test_performance.py
-rkos/src/tests/test_security.py
-rkos/src/utils/__init__.py
-rkos/src/utils/helpers.py
-rkos/src/utils/decorators.py
-rkos/install.sh
-rkos/requirements.txt
-rkos/LICENSE
 
 API Endpoints
 GET /health - Health check endpoint
@@ -102,4 +57,5 @@ Copyright (c) 2026 KANG CHANDARARAKSMEY
 
 
 All rights reserved.
+
 
