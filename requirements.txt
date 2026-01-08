@@ -1,0 +1,17 @@
+# RK-OS Requirements
+
+# Core dependencies
+psutil>=5.8.0
+python-dateutil>=2.8.1
+
+# Testing dependencies  
+pytest>=6.2.4
+unittest2>=1.1.0
+
+# Development tools (optional)
+black>=21.0.0
+flake8>=3.9.0
+mypy>=0.812
+
+# Documentation generation
+sphinx>=4.0.0
