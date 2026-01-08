@@ -37,70 +37,49 @@ REST API Server
 python -m src.interfaces.api
 System Structure
 rkos/
-├── src/
-│   ├── core/              # Core system components
-│   │   ├── __init__.py    # Package initializer
-│   │   ├── engine.py      # Main system engine  
-│   │   ├── processor.py   # Logic processing unit
-│   │   └── scheduler.py   # Task scheduling
-│   │
-│   ├── logic/             # Logical operations
-│   │   ├── __init__.py    # Package initializer
-│   │   ├── propositional.py  # Propositional logic
-│   │   ├── predicate.py      # Predicate logic  
-│   │   ├── truth_tables.py   # Truth table generation
-│   │   ├── tautology.py      # Tautology detection
-│   │   └── equivalence.py    # Logical equivalence
-│   │
-│   ├── kernel/            # Kernel integration
-│   │   ├── __init__.py    # Package initializer
-│   │   ├── bridge.py      # OS interface
-│   │   ├── manager.py     # Resource management
-│   │   ├── resources.py   # System monitoring  
-│   │   └── process.py     # Process control
-│   │
-│   ├── monitoring/        # Logging and metrics
-│   │   ├── __init__.py    # Package initializer
-│   │   ├── logger.py      # Performance logging
-│   │   ├── metrics.py     # Metrics collection
-│   │   └── dashboard.py   # Analytics dashboard
-│   │
-│   ├── security/          # Security framework  
-│   │   ├── __init__.py    # Package initializer
-│   │   ├── auth.py        # Authentication
-│   │   ├── access.py      # Access control
-│   │   ├── encryption.py  # Data encryption
-│   │   └── validation.py  # Input validation
-│   │
-│   ├── serialization/     # Data persistence
-│   │   ├── __init__.py    # Package initializer
-│   │   ├── json_serializer.py  # JSON format  
-│   │   ├── binary_serializer.py # Binary format
-│   │   └── xml_serializer.py   # XML format
-│   │
-│   ├── interfaces/        # User interfaces
-│   │   ├── __init__.py    # Package initializer
-│   │   ├── cli.py         # Command-line interface
-│   │   ├── gui.py         # Graphical interface
-│   │   └── api.py         # REST API server
-│   │
-│   ├── tests/             # Unit testing
-│   │   ├── __init__.py    # Package initializer
-│   │   ├── test_logic_system.py  # Logic tests
-│   │   ├── test_kernel_integration.py # Kernel tests  
-│   │   ├── test_performance.py   # Performance tests
-│   │   └── test_security.py      # Security tests
-│   │
-│   ├── utils/             # Utility functions
-│   │   ├── __init__.py    # Package initializer
-│   │   ├── helpers.py     # General helpers
-│   │   └── decorators.py  # Performance decorators
-│   │
-│   └── __init__.py        # Main package initializer
-│
-├── install.sh             # Installation script  
-├── requirements.txt       # Python dependencies
-└── LICENSE                # MIT License with owner attribution
+rkos/src/core/__init__.py
+rkos/src/core/engine.py
+rkos/src/core/processor.py
+rkos/src/core/scheduler.py
+rkos/src/logic/__init__.py
+rkos/src/logic/propositional.py
+rkos/src/logic/predicate.py
+rkos/src/logic/truth_tables.py
+rkos/src/logic/tautology.py
+rkos/src/logic/equivalence.py
+rkos/src/kernel/__init__.py
+rkos/src/kernel/bridge.py
+rkos/src/kernel/manager.py
+rkos/src/kernel/resources.py
+rkos/src/kernel/process.py
+rkos/src/monitoring/__init__.py
+rkos/src/monitoring/logger.py
+rkos/src/monitoring/metrics.py
+rkos/src/monitoring/dashboard.py
+rkos/src/security/__init__.py
+rkos/src/security/auth.py
+rkos/src/security/access.py
+rkos/src/security/encryption.py
+rkos/src/security/validation.py
+rkos/src/serialization/__init__.py
+rkos/src/serialization/json_serializer.py
+rkos/src/serialization/binary_serializer.py
+rkos/src/serialization/xml_serializer.py
+rkos/src/interfaces/__init__.py
+rkos/src/interfaces/cli.py
+rkos/src/interfaces/gui.py
+rkos/src/interfaces/api.py
+rkos/src/tests/__init__.py
+rkos/src/tests/test_logic_system.py
+rkos/src/tests/test_kernel_integration.py
+rkos/src/tests/test_performance.py
+rkos/src/tests/test_security.py
+rkos/src/utils/__init__.py
+rkos/src/utils/helpers.py
+rkos/src/utils/decorators.py
+rkos/install.sh
+rkos/requirements.txt
+rkos/LICENSE
 
 API Endpoints
 GET /health - Health check endpoint
@@ -123,3 +102,4 @@ Copyright (c) 2026 KANG CHANDARARAKSMEY
 
 
 All rights reserved.
+
