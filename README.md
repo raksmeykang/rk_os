@@ -101,6 +101,7 @@ rkos/
 ├── install.sh             # Installation script  
 ├── requirements.txt       # Python dependencies
 └── LICENSE                # MIT License with owner attribution
+
 API Endpoints
 GET /health - Health check endpoint
 GET /status - System status information
@@ -119,5 +120,6 @@ License
 This project is licensed under the MIT License - see the LICENSE file for details.
 
 Copyright (c) 2026 KANG CHANDARARAKSMEY
+
 
 All rights reserved.
