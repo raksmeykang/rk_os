@@ -1,123 +1,69 @@
 #!/bin/bash
-# RK-OS Installation Script
-# This script installs the complete RK-OS system with all dependencies
 
-set -e  # Exit on any error
+echo "Installing RK-OS 1.0 Logical Operating System on Raspberry Pi 5"
+echo "================================================"
 
-echo "=================================="
-echo "RK-OS Installation Script"
-echo "=================================="
-
-# Check if running as root (required for system-wide installation)
-if [ "$EUID" -ne 0 ]; then
-  echo "Please run as root (use sudo)"
-  exit 1
+# Check if running as root
+if [ "$EUID" -eq 0 ]; then
+  echo "Warning: Running as root. This may cause permission issues."
 fi
 
-# Function to check if command exists
-command_exists() {
-    command -v "$1" >/dev/null 2>&1
-}
+# Update package list and fix any broken packages first
+echo "Fixing system package management..."
+sudo dpkg --configure -a
+sudo apt clean
+sudo apt update
 
-# Function to install package based on OS
-install_package() {
-    local package_name=$1
-    
-    if command_exists apt-get; then
-        # Debian/Ubuntu
-        echo "Installing $package_name using apt-get..."
-        apt-get update
-        apt-get install -y "$package_name"
-    elif command_exists yum; then
-        # CentOS/RHEL/Fedora  
-        echo "Installing $package_name using yum..."
-        yum install -y "$package_name"
-    elif command_exists dnf; then
-        # Fedora
-        echo "Installing $package_name using dnf..."
-        dnf install -y "$package_name"
-    elif command_exists pacman; then
-        # Arch Linux
-        echo "Installing $package_name using pacman..."
-        pacman -S --noconfirm "$package_name"
-    else
-        echo "Unsupported package manager. Please install $package_name manually."
-        return 1
-    fi
-}
+# Install required dependencies for Raspberry Pi 5
+echo "Installing dependencies for Raspberry Pi 5..."
+sudo apt install python3-pip python3-dev git build-essential libssl-dev libffi-dev python3-venv -y
 
-# Check Python version
-echo "Checking Python version..."
-if ! command_exists python3; then
-    echo "Python 3 not found. Installing Python 3..."
-    if command_exists apt-get; then
-        apt-get update && apt-get install -y python3 python3-pip
-    elif command_exists yum || command_exists dnf; then
-        yum install -y python3 python3-pip
-    else
-        echo "Please install Python 3 manually"
-        exit 1
-    fi
-fi
+# Upgrade pip
+echo "Upgrading pip..."
+pip3 install --upgrade pip
 
-PYTHON_VERSION=$(python3 --version 2>&1 | cut -d' ' -f2)
-echo "Python version: $PYTHON_VERSION"
+# Create virtual environment for RK-OS (to avoid system conflicts)
+echo "Creating virtual environment..."
+mkdir -p /opt/rkos
+cd /opt/rkos
+python3 -m venv rkos_env
+source rkos_env/bin/activate
 
-# Install system dependencies
-echo "Installing system dependencies..."
-SYSTEM_DEPS=("git" "build-essential" "libssl-dev" "libffi-dev" "python3-dev")
-
-for dep in "${SYSTEM_DEPS[@]}"; do
-    if ! command_exists "$dep"; then
-        echo "Installing $dep..."
-        install_package "$dep"
-    else
-        echo "$dep is already installed."
-    fi
-done
-
-# Create RK-OS directory structure
-echo "Creating RK-OS directory structure..."
-
-RKOS_HOME="/opt/rkos"
-mkdir -p "$RKOS_HOME"
-
-# Clone or copy the source code (assuming it's in current directory)
-echo "Copying RK-OS source files..."
-cp -r ./* "$RKOS_HOME/" 2>/dev/null || {
-    echo "Error: Could not copy source files. Please ensure you're running this script from the RK-OS root directory."
-    exit 1
-}
-
-# Set proper ownership and permissions
-chown -R root:root "$RKOS_HOME"
-chmod -R 755 "$RKOS_HOME"
-
-# Install Python dependencies
-echo "Installing Python dependencies..."
-cd "$RKOS_HOME" || exit 1
-
-if [ -f requirements.txt ]; then
-    pip3 install -r requirements.txt
+# Install Python requirements in virtual environment
+echo "Installing Python requirements in virtual environment..."
+if [ -f "/home/raksmeykang/rk_os/requirements.txt" ]; then
+    cd /home/raksmeykang/rk_os
+    pip install --upgrade pip
+    pip install -r requirements.txt
 else
-    echo "requirements.txt not found. Installing basic dependencies..."
-    pip3 install psutil python-dateutil
+    echo "Warning: requirements.txt not found. Installing basic dependencies."
+    pip install flask psutil
 fi
 
-# Create systemd service file for RK-OS (optional)
-echo "Creating systemd service file..."
+# Copy source files to opt directory (system location)
+echo "Copying source files to system directories..."
+sudo mkdir -p /opt/rkos/src
+sudo cp -r /home/raksmeykang/rk_os/src/* /opt/rkos/src/
 
-SERVICE_FILE="/etc/systemd/system/rkos.service"
-cat > "$SERVICE_FILE" << EOF
+# Make scripts executable in system location
+echo "Making scripts executable..."
+sudo chmod +x /opt/rkos/*.sh
+sudo chmod +x /opt/rkos/src/interfaces/cli.py
+sudo chmod +x /opt/rkos/src/interfaces/gui.py
+sudo chmod +x /opt/rkos/src/interfaces/api.py
+
+# Create systemd service file for Raspberry Pi 5
+echo "Creating systemd service file for Raspberry Pi 5..."
+sudo cat > /etc/systemd/system/rkos.service << EOF
 [Unit]
-Description=RK-OS Logical Operating System
+Description=RK-OS 1.0 Logical Operating System for Raspberry Pi 5
 After=network.target
 
 [Service]
 Type=simple
-User=root
-WorkingDirectory=$RKOS_HOME
-ExecStart=/usr/bin/python3 $RKOS_HOME/main.py
+User=raksmeykang
+WorkingDirectory=/opt/rkos
+ExecStart=/opt/rkos/rkos_env/bin/python3 -m src.interfaces.api
 Restart=always
 RestartSec=10
 
@@ -125,63 +71,35 @@ RestartSec=10
 WantedBy=multi-user.target
 EOF
 
-chmod 644 "$SERVICE_FILE"
+# Reload systemd daemon
+echo "Reloading systemd..."
+sudo systemctl daemon-reload
 
-# Enable and start the service (if desired)
-echo "Would you like to enable RK-OS as a system service? (y/n)"
-read -r response
-if [[ $response == [Yy] ]]; then
-    echo "Enabling RK-OS service..."
-    systemctl daemon-reload
-    systemctl enable rkos.service
-    echo "RK-OS service enabled. Start with: sudo systemctl start rkos"
-fi
+# Enable service to start on boot
+echo "Enabling RK-OS service..."
+sudo systemctl enable rkos.service
 
-# Create environment variables for easy access
-echo "Creating environment setup..."
-
-ENV_FILE="/etc/profile.d/rkos.sh"
-cat > "$ENV_FILE" << EOF
-#!/bin/bash
-export RKOS_HOME="$RKOS_HOME"
-export PATH="\$PATH:$RKOS_HOME"
-EOF
-
-chmod +x "$ENV_FILE"
-
-# Create user-friendly startup script  
-echo "Creating user startup script..."
-
-START_SCRIPT="/usr/local/bin/rkos-start"
-cat > "$START_SCRIPT" << EOF
-#!/bin/bash
-cd $RKOS_HOME
-/usr/bin/python3 main.py "\$@"
-EOF
-
-chmod +x "$START_SCRIPT"
-
-# Display completion message
 echo ""
-echo "=================================="
-echo "Installation Complete!"
-echo "=================================="
+echo "RK-OS 1.0 Installation Complete for Raspberry Pi 5!"
+echo "================================================"
+echo "Installation Details:"
+echo "- System location: /opt/rkos/"
+echo "- Virtual environment: /opt/rkos/rkos_env/"
+echo "- Service file: /etc/systemd/system/rkos.service"
 echo ""
-echo "To use RK-OS:"
-echo "  - Run: sudo rkos-start"
-echo "  - Or directly: cd $RKOS_HOME && python3 main.py"
+echo "To start the system:"
+echo "  sudo systemctl start rkos.service"
+echo "  or"
+echo "  source /opt/rkos/rkos_env/bin/activate && python3 -m src.interfaces.cli start"
 echo ""
-echo "To manage the service (if enabled):"
-echo "  - Start: sudo systemctl start rkos"
-echo "  - Stop: sudo systemctl stop rkos"  
-echo "  - Status: sudo systemctl status rkos"
-echo "  - Restart: sudo systemctl restart rkos"
+echo "To check status:"
+echo "  sudo systemctl status rkos.service"
 echo ""
-echo "Logs are available in:"
-echo "  - $RKOS_HOME/rkos.log"
-echo "  - $RKOS_HOME/rkos_monitoring.log"
+echo "To view logs:"
+echo "  sudo journalctl -u rkos.service"
 echo ""
-echo "For more information, see the README.md file."
-echo "=================================="
-
-exit 0
+echo "To test installation:"
+echo "  source /opt/rkos/rkos_env/bin/activate && python3 -m src.interfaces.cli test"
+echo ""
+echo "Owner: KANG CHANDARARAKSMEY"
+echo "License: MIT License"
