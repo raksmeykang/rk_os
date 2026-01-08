@@ -114,22 +114,40 @@ class RKOServer:
                         'success': False
                     }), 500
 
-            # Metrics endpoint
+            # Metrics endpoint - FIXED VERSION
             @self.app.route('/metrics', methods=['GET'])
             def get_metrics():
                 try:
-                    from src.monitoring.metrics import SystemMetrics
+                    # Try to import the system metrics properly
+                    from src.monitoring.metrics import get_system_stats
                     
-                    metrics = SystemMetrics()
+                    system_stats = get_system_stats()
                     return jsonify({
                         'data': {
-                            'system_stats': metrics.get_system_stats(),
+                            'system_stats': system_stats,
                             'timestamp': time.time(),
                             'uptime_seconds': time.time() - self.start_time
                         },
                         'success': True
                     })
+                except ImportError as e:
+                    # If direct import fails, fallback to basic metrics  
+                    logger.warning(f"Metrics import failed: {e}")
+                    return jsonify({
+                        'data': {
+                            'system_stats': {
+                                'errors_count': 0,
+                                'warnings_count': 0,
+                                'start_time': self.start_time
+                            },
+                            'timestamp': time.time(),
+                            'uptime_seconds': time.time() - self.start_time
+                        },
+                        'success': True,
+                        'warning': f'Metrics fallback due to import error: {str(e)}'
+                    })
                 except Exception as e:
+                    # Handle any other errors in metrics processing
                     logger.error(f"Error getting metrics: {e}")
                     return jsonify({
                         'error': str(e),
