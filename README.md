@@ -35,72 +35,10 @@ Graphical User Interface
 python -m src.interfaces.gui
 REST API Server
 python -m src.interfaces.api
-System Structure
-rkos/
-├── src/
-│   ├── core/              # Core system components
-│   │   ├── __init__.py    # Package initializer
-│   │   ├── engine.py      # Main system engine  
-│   │   ├── processor.py   # Logic processing unit
-│   │   └── scheduler.py   # Task scheduling
-│   │
-│   ├── logic/             # Logical operations
-│   │   ├── __init__.py    # Package initializer
-│   │   ├── propositional.py  # Propositional logic
-│   │   ├── predicate.py      # Predicate logic  
-│   │   ├── truth_tables.py   # Truth table generation
-│   │   ├── tautology.py      # Tautology detection
-│   │   └── equivalence.py    # Logical equivalence
-│   │
-│   ├── kernel/            # Kernel integration
-│   │   ├── __init__.py    # Package initializer
-│   │   ├── bridge.py      # OS interface
-│   │   ├── manager.py     # Resource management
-│   │   ├── resources.py   # System monitoring  
-│   │   └── process.py     # Process control
-│   │
-│   ├── monitoring/        # Logging and metrics
-│   │   ├── __init__.py    # Package initializer
-│   │   ├── logger.py      # Performance logging
-│   │   ├── metrics.py     # Metrics collection
-│   │   └── dashboard.py   # Analytics dashboard
-│   │
-│   ├── security/          # Security framework  
-│   │   ├── __init__.py    # Package initializer
-│   │   ├── auth.py        # Authentication
-│   │   ├── access.py      # Access control
-│   │   ├── encryption.py  # Data encryption
-│   │   └── validation.py  # Input validation
-│   │
-│   ├── serialization/     # Data persistence
-│   │   ├── __init__.py    # Package initializer
-│   │   ├── json_serializer.py  # JSON format  
-│   │   ├── binary_serializer.py # Binary format
-│   │   └── xml_serializer.py   # XML format
-│   │
-│   ├── interfaces/        # User interfaces
-│   │   ├── __init__.py    # Package initializer
-│   │   ├── cli.py         # Command-line interface
-│   │   ├── gui.py         # Graphical interface
-│   │   └── api.py         # REST API server
-│   │
-│   ├── tests/             # Unit testing
-│   │   ├── __init__.py    # Package initializer
-│   │   ├── test_logic_system.py  # Logic tests
-│   │   ├── test_kernel_integration.py # Kernel tests  
-│   │   ├── test_performance.py   # Performance tests
-│   │   └── test_security.py      # Security tests
-│   │
-│   ├── utils/             # Utility functions
-│   │   ├── __init__.py    # Package initializer
-│   │   ├── helpers.py     # General helpers
-│   │   └── decorators.py  # Performance decorators
-│   │
-│   └── __init__.py        # Main package initializer
-│
-├── install.sh             # Installation script  
-├── requirements.txt       # Python dependencies
-└── LICENSE                # MIT License with owner attribution
+
+-install.sh             # Installation script  
+- requirements.txt       # Python dependencies
+- LICENSE                # MIT License with owner attribution
 API Endpoints
 GET /health - Health check endpoint
 GET /status - System status information
@@ -119,5 +57,6 @@ License
 This project is licensed under the MIT License - see the LICENSE file for details.
 
 Copyright (c) 2026 KANG CHANDARARAKSMEY
+
 
 All rights reserved.
