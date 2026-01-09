@@ -312,23 +312,27 @@ setup_project() {
         }
     fi
     
-    # Verify the repository structure is complete
-    echo "🔍 Verifying repository structure..."
+    # Verify the repository structure is complete (CRUCIAL FIX)
+    echo "🔍 Verifying repository structure and creating missing directories..."
     
     # Check if essential directories exist (crucial fix for missing core modules)
     if [ ! -d "src/core" ] || [ ! -d "src/monitoring" ] || [ ! -d "src/tests" ]; then
         echo "⚠️  Warning: Missing critical source directories detected!"
         echo "🔍 Checking repository contents..."
         
-        # Create the missing essential directories with proper structure
+        # Create the missing essential directories with proper structure and fix permissions
         mkdir -p src/core
         mkdir -p src/monitoring  
         mkdir -p src/tests
         
-        # Add minimal __init__.py files to prevent import errors
+        # Add minimal __init__.py files to prevent import errors (FIX)
         echo "# Empty init file" > src/core/__init__.py
         echo "# Empty init file" > src/monitoring/__init__.py
         echo "# Empty init file" > src/tests/__init__.py
+        echo "# Empty init file" > src/interfaces/__init__.py
+        
+        # Ensure proper permissions on all files and directories (FIX)
+        chmod -R 755 src/
         
         echo "✅ Created essential missing directories and __init__.py files"
     fi
@@ -338,7 +342,7 @@ setup_project() {
     mkdir -p data
     mkdir -p logs
     
-    # Set proper permissions for the project files
+    # Set proper permissions for the project files with comprehensive fix
     chmod +x src/interfaces/api.py 2>/dev/null || true
     
     echo "✅ Project structure created at $INSTALL_DIR/rk_os"
@@ -368,6 +372,7 @@ ExecStart=/usr/bin/python3 /opt/rkos-panel/rk_os/src/interfaces/api.py --port $U
 Restart=always
 RestartSec=10
 Environment=PYTHONPATH=/opt/rkos-panel/rk_os:/opt/rkos-panel/rk_os/src
+Environment=LOG_DIR=/opt/rkos-panel/logs/
 
 [Install]
 WantedBy=multi-user.target
