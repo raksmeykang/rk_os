@@ -1,62 +1,43 @@
-RK-OS 1.0 - Logical Operating System
-RK-OS is a comprehensive logical operating system that provides advanced computational capabilities through propositional and predicate logic processing, integrated kernel monitoring, security frameworks, and data serialization.
+# 🖥️ RK-OS (Real Kick OS) - Comprehensive Documentation
 
-Features
-Propositional Logic Processing: AND, OR, NOT operations with truth table generation
-Predicate Logic Extensions: Advanced logical reasoning capabilities
-Kernel Integration: System resource monitoring and process management
-Security Framework: Authentication, access control, encryption, input validation
-Data Serialization: JSON, Binary, and XML format support
-Multiple Interfaces: CLI, GUI, and REST API for system control
-Performance Monitoring: Real-time analytics dashboard with metrics collection
-Owner
-KANG CHANDARARAKSMEY
+**RK-OS (Real Kick OS)** is a comprehensive operating system control panel designed for managing and monitoring computing systems. It provides a unified interface for system administration, application management, and real-time monitoring capabilities.
 
-Requirements
-Python 3.7+
-Flask (for API interface)
-psutil (system monitoring)
-Installation
-From Source
-Clone the repository:
-git clone https://github.com/raksmeykang/rk_os.git
-cd rk_os
-Install dependencies:
-pip install -r requirements.txt
-Run installation script (optional):
-./install.sh
-Usage
-Command Line Interface
-python -m src.interfaces.cli start        # Start system  
-python -m src.interfaces.cli status       # Check status
-python -m src.interfaces.cli test         # Run tests
-python -m src.interfaces.cli metrics      # View performance metrics
-Graphical User Interface
-python -m src.interfaces.gui
-REST API Server
-python -m src.interfaces.api
+### 🔍 CORE FEATURES & REQUIREMENTS
+* **Compatibility:** Works on Windows, Linux, and macOS.
+* **Monitoring:** Web-based Dashboard with real-time metrics and performance tracking.
+* **Configuration:** Auto-start services, custom port configuration, and secure authentication.
+* **Minimum Specs:** Python 3.7+, Git, 50MB Disk Space, 2GB RAM (4GB recommended).
 
--install.sh             # Installation script  
-- requirements.txt       # Python dependencies
-- LICENSE                # MIT License with owner attribution
-API Endpoints
-GET /health - Health check endpoint
-GET /status - System status information
-POST /logic/evaluate - Evaluate logical operations
-GET /metrics - Performance metrics
-GET /config - Configuration endpoints
-GET /test - Run system tests
-GET /version - Version information
-Contributing
-Fork the repository
-Create feature branch (git checkout -b feature/AmazingFeature)
-Commit changes (git commit -m 'Add some AmazingFeature')
-Push to branch (git push origin feature/AmazingFeature)
-Open pull request
-License
-This project is licensed under the MIT License - see the LICENSE file for details.
+### 🚀 INSTALLATION & SETUP
+**Quick Install:** `wget https://raw.githubusercontent.com/raksmeykang/rk_os/main/Install_RKOS.sh && chmod +x Install_RKOS.sh && ./Install_RKOS.sh`
 
-Copyright (c) 2026 KANG CHANDARARAKSMEY
+**Manual Install & Build:**
+1. `git clone https://github.com/raksmeykang/rk_os.git`
+2. `cd rk_os`
+3. `chmod +x Install_RKOS.sh`
+4. `./Install_RKOS.sh` (You will be prompted to select a custom port, default is 8085).
 
+**Verification:** Run `python src/interfaces/cli.py status` to confirm the system is running. Expected output shows Status: Running, Version: 1.0.0, and Owner: KANG CHANDARARAKSMEY.
 
-All rights reserved.
+### 💻 USAGE & COMMANDS
+* **CLI Status:** `python src/interfaces/cli.py status`
+* **Run Tests:** `python src/interfaces/cli.py test`
+* **Start API Manually:** `python src/interfaces/api.py --port 8085`
+* **Web Access:** Open `http://localhost:8085/` in your browser.
+
+### ⚙️ SERVICE MANAGEMENT (LINUX)
+Manage the background service using systemctl:
+* **Status:** `sudo systemctl status rkos-panel.service`
+* **Start/Stop/Restart:** Use `start`, `stop`, or `restart` with the service name above.
+* **Logs:** `sudo journalctl -u rkos-panel.service -f` or `tail -f /opt/rkos-panel/logs/*.log`.
+
+### 🎯 PORT CUSTOMIZATION & TROUBLESHOOTING
+The RK-OS Panel includes an interactive port selection during setup to avoid conflicts (e.g., avoiding 8080 or 3000). It uses Python's `argparse` to listen on your chosen port: `app.run(host='0.0.0.0', port=args.port)`. 
+
+**Troubleshooting:**
+* If the port is in use, check processes with `netstat -tulpn | grep :8085`.
+* If you see "Permission Denied," ensure you used `sudo chmod +x` on the installer.
+* If the service fails to start, check `systemctl status` for error logs.
+
+---
+**Author:** [KANG CHANDARARAKSMEY](https://github.com/raksmeykang) | ✅ RK-OS is ready for production use.
