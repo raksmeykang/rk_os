@@ -1,45 +1,68 @@
-# 🖥️ RK-OS (Real Kick OS) - Comprehensive Documentation
+# 🚀 RK-OS Panel
 
-**RK-OS (Real Kick OS)** is a comprehensive operating system control panel designed for managing and monitoring computing systems. It provides a unified interface for system administration, application management, and real-time monitoring capabilities.
+**RK-OS Panel** is a cross-platform system management interface with automated installation for Raspberry Pi, Linux, macOS, and Windows.
 
-### 🔍 CORE FEATURES & REQUIREMENTS
-* **Compatibility:** Works on Windows, Linux, and macOS.
-* **Monitoring:** Web-based Dashboard with real-time metrics and performance tracking.
-* **Configuration:** Auto-start services, custom port configuration, and secure authentication.
-* **Minimum Specs:** Python 3.7+, Git, 50MB Disk Space, 2GB RAM (4GB recommended).
+## 📋 Table of Contents
+1. [Features](#features)
+2. [Supported Platforms](#supported-platforms)
+3. [Installation](#installation)
+4. [Usage](#usage)
+5. [Configuration](#configuration)
+6. [Troubleshooting](#troubleshooting)
 
-### 🚀 INSTALLATION & SETUP
+## 🔧 Features
 
-1. `git clone https://github.com/raksmeykang/rk_os.git`
-2. `cd rk_os`
-3. `sudo chmod +x Install_RKOS.sh`
-4. `sudo ./Install_RKOS.sh` (You will be prompted to select a custom port, default is 8085).
+- **Cross-Platform Support**: Works on Raspberry Pi 5, Ubuntu/Debian Linux, macOS, and Windows
+- **Automated Installation**: One-click installation with all fixes applied
+- **Auto Port Detection**: Automatically finds available ports or lets you choose
+- **Security Optimized**: All security features properly configured for each platform
+- **Service Management**: Auto-start services at boot time
+- **Dashboard Interface**: Complete web-based control panel
 
-**Verification:** Run `python src/interfaces/cli.py status` to confirm the system is running. Expected output shows Status: Running, Version: 1.0.0, and Owner: KANG CHANDARARAKSMEY.
+## 🖥️ Supported Platforms
 
-### 💻 USAGE & COMMANDS
-* **CLI Status:** `python src/interfaces/cli.py status`
-* **Run Tests:** `python src/interfaces/cli.py test`
-* **Start API Manually:** `python src/interfaces/api.py --port 8085`
-* **Web Access:** Open `http://localhost:8085/` in your browser.
+| Platform | Status |
+|----------|--------|
+| Raspberry Pi 5 | ✅ Fully Supported |
+| Ubuntu/Debian Linux | ✅ Fully Supported |
+| macOS | ✅ Fully Supported |
+| Windows | ✅ Fully Supported |
 
-### ⚙️ SERVICE MANAGEMENT (LINUX)
-Manage the background service using systemctl:
-* **Status:** `sudo systemctl status rkos-panel.service`
-* **Start/Stop/Restart:** Use `sudo` `start`, `stop`, or `restart` with `rkos-panel.service`
-* **Logs:** `sudo journalctl -u rkos-panel.service -f` or `tail -f /opt/rkos-panel/logs/*.log`.
+## 🚀 Installation
 
-### 🎯 PORT CUSTOMIZATION & TROUBLESHOOTING
-The RK-OS Panel includes an interactive port selection during setup to avoid conflicts (e.g., avoiding 8080 or 3000). It uses Python's `argparse` to listen on your chosen port: `app.run(host='0.0.0.0', port=args.port)`. 
+### Method 1: One-Click Cross-Platform Installer (Recommended)
 
-**Troubleshooting:**
-* If the port is in use, check processes with `netstat -tulpn | grep :8085`.
-* If you see "Permission Denied," ensure you used `sudo chmod +x` on the installer.
-* If the service fails to start, check `systemctl status` for error logs.
-
----
-**Author:** [KANG CHANDARARAKSMEY](https://github.com/raksmeykang) | ✅ RK-OS is ready for production use.
-
-
-
-
+```bash
+# Download and run the cross-platform installer
+wget https://raw.githubusercontent.com/raksmeykang/rk_os/main/install.sh -O install.sh
+chmod +x install.sh
+./install.sh
+```
+### Method 2: Platform-Specific Installers
+### Raspberry Pi 5:
+```
+# Download and run Raspberry Pi installer
+wget https://raw.githubusercontent.com/raksmeykang/rk_os/main/Install_RKOS_Pi.sh -O Install_RKOS_Pi.sh
+chmod +x Install_RKOS_Pi.sh
+sudo ./Install_RKOS_Pi.sh
+```
+### Linux (Ubuntu/Debian):
+```
+# Download and run Linux installer
+wget https://raw.githubusercontent.com/raksmeykang/rk_os/main/Install_RKOS_Linux.sh -O Install_RKOS_Linux.sh
+chmod +x Install_RKOS_Linux.sh
+sudo ./Install_RKOS_Linux.sh
+```
+### macOS:
+```
+# Download and run macOS installer
+wget https://raw.githubusercontent.com/raksmeykang/rk_os/main/Install_RKOS_Mac.sh -O Install_RKOS_Mac.sh
+chmod +x Install_RKOS_Mac.sh
+sudo ./Install_RKOS_Mac.sh
+```
+### Windows:
+```
+# Download and run Windows installer (run as Administrator)
+curl https://raw.githubusercontent.com/raksmeykang/rk_os/main/Install_RKOS_Windows.bat -o Install_RKOS_Windows.bat
+Install_RKOS_Windows.bat
+```
