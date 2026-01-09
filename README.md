@@ -12,7 +12,7 @@
 
 1. `git clone https://github.com/raksmeykang/rk_os.git`
 2. `cd rk_os`
-3. `chmod +x Install_RKOS.sh`
+3. `sudo chmod +x Install_RKOS.sh`
 4. `sudo ./Install_RKOS.sh` (You will be prompted to select a custom port, default is 8085).
 
 **Verification:** Run `python src/interfaces/cli.py status` to confirm the system is running. Expected output shows Status: Running, Version: 1.0.0, and Owner: KANG CHANDARARAKSMEY.
@@ -39,5 +39,6 @@ The RK-OS Panel includes an interactive port selection during setup to avoid con
 
 ---
 **Author:** [KANG CHANDARARAKSMEY](https://github.com/raksmeykang) | ✅ RK-OS is ready for production use.
+
 
 
