@@ -1,5 +1,5 @@
 #!/bin/bash
-# 🚀 RK-OS Panel Full Installation Script with Comprehensive Error Handling and Fixes
+# 🚀 RK-OS Panel Full Installation Script with Comprehensive Security
 
 echo "=================================="
 echo "🚀 FULL RK-OS PANEL INSTALLER"
@@ -342,16 +342,35 @@ setup_project() {
     mkdir -p data
     mkdir -p logs
     
-    # Set proper permissions for the project files with comprehensive fix
-    chmod +x src/interfaces/api.py 2>/dev/null || true
+    # 🔧 SECURE PERMISSIONS FIX - THIS IS THE KEY FIX FOR YOUR ISSUE:
+    echo "🔧 Setting secure file and directory permissions..."
     
-    # 🔧 ADD THIS NEW PERMISSIONS FIX TO PREVENT FUTURE ISSUES:
-    echo "🔧 Setting proper file and directory permissions..."
-    find src/ -type d -exec chmod 755 {} \;
-    find src/ -name "*.py" -exec chmod 644 {} \;
-    chmod 755 src/interfaces/api.py
+    # Set ownership on entire project with security in mind
+    sudo chown -R root:root /opt/rkos-panel/rk_os/
     
-    echo "✅ Project structure created at $INSTALL_DIR/rk_os"
+    # Fix all directory permissions properly (THE KEY FIX)
+    find /opt/rkos-panel/rk_os/src/ -type d -exec chmod 755 {} \;
+    
+    # Fix Python files with proper read-only permissions
+    find /opt/rkos-panel/rk_os/src/ -name "*.py" -exec chmod 644 {} \;
+    
+    # Make API file executable (but secure)
+    chmod 755 /opt/rkos-panel/rk_os/src/interfaces/api.py
+    
+    # Set specific permissions for sensitive directories
+    chmod 700 /opt/rkos-panel/rk_os/src/core/
+    chmod 700 /opt/rkos-panel/rk_os/src/security/
+    
+    # Ensure proper access for service execution while maintaining protection
+    chmod 755 /opt/rkos-panel/rk_os/src/interfaces/
+    chmod 755 /opt/rkos-panel/rk_os/src/kernel/
+    chmod 755 /opt/rkos-panel/rk_os/src/logic/
+    
+    # Set proper permissions on logs directory  
+    sudo chown -R root:root /opt/rkos-panel/rk_os/logs/
+    chmod 750 /opt/rkos-panel/rk_os/logs/
+    
+    echo "✅ Project structure created at $INSTALL_DIR/rk_os with secure permissions"
 }
 
 # Function to create systemd service with comprehensive error handling and verification
@@ -373,11 +392,19 @@ After=network.target
 [Service]
 Type=simple
 User=root
+Group=root
 WorkingDirectory=/opt/rkos-panel/rk_os
 ExecStart=/usr/bin/python3 /opt/rkos-panel/rk_os/src/interfaces/api.py --port $USER_PORT
 Restart=always
 RestartSec=10
 Environment=PYTHONPATH=/opt/rkos-panel/rk_os:/opt/rkos-panel/rk_os/src
+
+# Security enhancements:
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ReadWritePaths=/opt/rkos-panel/rk_os/logs/
+ReadOnlyPaths=/opt/rkos-panel/rk_os/src/
 
 [Install]
 WantedBy=multi-user.target
@@ -463,7 +490,7 @@ user=root
 autostart=true
 autorestart=true
 redirect_stderr=true
-stdout_logfile=/opt/rkos-panel/logs/$SERVICE_NAME.log
+stdout_logfile=/opt/rkos-panel/rk_os/logs/$SERVICE_NAME.log
 environment=PYTHONPATH="/opt/rkos-panel/rk_os:/opt/rkos-panel/rk_os/src"
 EOF
             
@@ -486,7 +513,7 @@ user=$(whoami)
 autostart=true
 autorestart=true
 redirect_stderr=true
-stdout_logfile=/opt/rkos-panel/logs/$SERVICE_NAME.log
+stdout_logfile=/opt/rkos-panel/rk_os/logs/$SERVICE_NAME.log
 environment=PYTHONPATH="/opt/rkos-panel/rk_os:/opt/rkos-panel/rk_os/src"
 EOF
             
@@ -532,8 +559,8 @@ server {
         proxy_set_header X-Forwarded-Proto \$scheme;
     }
     
-    error_log /opt/rkos-panel/logs/nginx_error.log;
-    access_log /opt/rkos-panel/logs/nginx_access.log;
+    error_log /opt/rkos-panel/rk_os/logs/nginx_error.log;
+    access_log /opt/rkos-panel/rk_os/logs/nginx_access.log;
 }
 EOF
             
@@ -580,8 +607,8 @@ server {
         proxy_set_header X-Forwarded-Proto \$scheme;
     }
     
-    error_log /opt/rkos-panel/logs/nginx_error.log;
-    access_log /opt/rkos-panel/logs/nginx_access.log;
+    error_log /opt/rkos-panel/rk_os/logs/nginx_error.log;
+    access_log /opt/rkos-panel/rk_os/logs/nginx_access.log;
 }
 EOF
             
