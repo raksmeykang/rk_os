@@ -9,9 +9,7 @@
 * **Minimum Specs:** Python 3.7+, Git, 50MB Disk Space, 2GB RAM (4GB recommended).
 
 ### 🚀 INSTALLATION & SETUP
-**Quick Install:** `wget https://raw.githubusercontent.com/raksmeykang/rk_os/main/Install_RKOS.sh && chmod +x Install_RKOS.sh && ./Install_RKOS.sh`
 
-**Manual Install & Build:**
 1. `git clone https://github.com/raksmeykang/rk_os.git`
 2. `cd rk_os`
 3. `chmod +x Install_RKOS.sh`
@@ -41,3 +39,4 @@ The RK-OS Panel includes an interactive port selection during setup to avoid con
 
 ---
 **Author:** [KANG CHANDARARAKSMEY](https://github.com/raksmeykang) | ✅ RK-OS is ready for production use.
+
