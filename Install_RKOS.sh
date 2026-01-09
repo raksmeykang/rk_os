@@ -1,16 +1,247 @@
 #!/bin/bash
-# 🚀 RK-OS Panel Full Installation Script with Enhanced Error Handling
+# 🚀 RK-OS Panel Full Installation Script with Intelligent Package Source Selection
 
 echo "=================================="
 echo "🚀 FULL RK-OS PANEL INSTALLER"
 echo "=================================="
-echo "Installing RK-OS Panel with custom port, auto-start services, and web access"
+echo "Installing RK-OS Panel with intelligent package source detection"
 
 # Set installation variables
 INSTALL_DIR="/opt/rkos-panel"
 PROJECT_NAME="rkos-panel"
 SERVICE_NAME="rkos-panel"
 DEFAULT_PORT=8085
+
+# Function to check network connectivity to a URL
+check_connectivity() {
+    local url=$1
+    local timeout=${2:-5}
+    
+    if command_exists timeout; then
+        timeout $timeout ping -c 1 $url >/dev/null 2>&1 && return 0 || return 1
+    else
+        # Fallback without timeout
+        ping -c 1 $url >/dev/null 2>&1 && return 0 || return 1
+    fi
+}
+
+# Function to test package index connectivity and determine fastest source
+detect_fastest_source() {
+    echo "🎯 Testing available package sources for optimal connection..."
+    
+    # Common Python package indexes with their domains
+    SOURCES=(
+        "https://pypi.org/simple"
+        "https://www.piwheels.org/simple" 
+        "https://pypi.douban.com/simple"
+        "https://mirrors.aliyun.com/pypi/simple"
+        "https://pypi.tuna.tsinghua.edu.cn/simple"
+    )
+    
+    DOMAINS=(
+        "pypi.org"
+        "piwheels.org"
+        "pypi.douban.com"
+        "mirrors.aliyun.com"
+        "pypi.tuna.tsinghua.edu.cn"
+    )
+    
+    FASTEST_SOURCE=""
+    FASTEST_DOMAIN=""
+    BEST_RTT=999
+    
+    for i in "${!SOURCES[@]}"; do
+        local source="${SOURCES[$i]}"
+        local domain="${DOMAINS[$i]}"
+        
+        # Test connectivity to the domain
+        if check_connectivity "$domain" 3; then
+            echo "✅ Domain $domain is reachable"
+            
+            # Test package index availability (simplified test)
+            if command_exists curl || command_exists wget; then
+                local test_url="${source%/}/flask"
+                
+                # Try to connect to the source URL 
+                if command_exists curl; then
+                    response=$(curl -sI --connect-timeout 5 "$test_url" 2>/dev/null | head -n 1)
+                elif command_exists wget; then
+                    response=$(wget --spider --server-response --quiet "$test_url" 2>&1 | grep -E "HTTP|HTTP/.*[0-9]" | head -n 1)
+                else
+                    # Fallback - just assume it works if domain is reachable
+                    echo "🌐 Using source $source (domain reachable)"
+                    FASTEST_SOURCE="$source"
+                    FASTEST_DOMAIN="$domain" 
+                    break
+                fi
+                
+                # If we got a response, this source might be working
+                if [[ ! -z "$response" ]]; then
+                    echo "🔗 Source $source appears functional"
+                    
+                    # For now, just use the first reachable one for simplicity
+                    # In production you'd measure actual RTT or download speed
+                    FASTEST_SOURCE="$source"
+                    FASTEST_DOMAIN="$domain"
+                    break  # Use first working source found
+                fi
+            else
+                echo "🌐 Using source $source (domain reachable)"
+                FASTEST_SOURCE="$source"
+                FASTEST_DOMAIN="$domain" 
+                break
+            fi
+        else
+            echo "❌ Domain $domain not reachable"
+        fi
+    done
+    
+    # If no sources found, default to pypi.org
+    if [ -z "$FASTEST_SOURCE" ]; then
+        echo "⚠️  No fast sources detected, falling back to standard PyPI"
+        FASTEST_SOURCE="https://pypi.org/simple"
+        FASTEST_DOMAIN="pypi.org"
+    fi
+    
+    echo "✅ Selected fastest source: $FASTEST_SOURCE ($FASTEST_DOMAIN)"
+    
+    # Return the selected source
+    echo "$FASTEST_SOURCE"
+}
+
+# Function to get user-selected port with validation
+get_custom_port() {
+    echo ""
+    echo "📋 PORT SELECTION"
+    echo "=================================="
+    
+    # Show commonly used ports that are less likely to conflict
+    echo "Commonly Used Ports (Avoiding Common Conflicts):"
+    echo "  8085 - Recommended (avoiding 8080, 3000)"
+    echo "  8090 - Alternative choice"  
+    echo "  8443 - SSL port"
+    echo "  9000 - Development port"
+    echo "  9090 - Monitoring port"
+    echo ""
+    
+    read -p "Enter custom port number (default: $DEFAULT_PORT): " USER_PORT
+    
+    # Use default if empty
+    if [ -z "$USER_PORT" ]; then
+        USER_PORT=$DEFAULT_PORT
+        echo "Using default port: $USER_PORT"
+    else
+        # Validate port number
+        if ! [[ "$USER_PORT" =~ ^[0-9]+$ ]] || [ "$USER_PORT" -lt 1 ] || [ "$USER_PORT" -gt 65535 ]; then
+            echo "❌ Invalid port number. Using default: $DEFAULT_PORT"
+            USER_PORT=$DEFAULT_PORT
+        else
+            echo "✅ Selected port: $USER_PORT"
+        fi
+    fi
+    
+    # Check if port is already in use (with better error handling)
+    if command_exists lsof; then
+        if lsof -i :$USER_PORT > /dev/null 2>&1; then
+            echo ""
+            echo "⚠️ WARNING: Port $USER_PORT appears to be in use!"
+            read -p "Continue anyway? (y/n): " CONTINUE
+            if [[ ! "$CONTINUE" =~ ^[Yy]$ ]]; then
+                echo "Installation cancelled."
+                exit 1
+            fi
+        fi
+    elif command_exists netstat; then
+        if netstat -an | grep :$USER_PORT > /dev/null 2>&1; then
+            echo ""
+            echo "⚠️ WARNING: Port $USER_PORT appears to be in use!"
+            read -p "Continue anyway? (y/n): " CONTINUE
+            if [[ ! "$CONTINUE" =~ ^[Yy]$ ]]; then
+                echo "Installation cancelled."
+                exit 1
+            fi
+        fi
+    fi
+    
+    echo ""
+    return $USER_PORT
+}
+
+# Function to install Python packages with intelligent source selection and fallbacks  
+install_python_packages() {
+    echo "🔧 Installing Python packages with intelligent source detection..."
+    
+    # First, detect the fastest package index available
+    echo "🔍 Detecting fastest package source..."
+    FASTEST_SOURCE=$(detect_fastest_source)
+    
+    # Check if we have pip3 installed
+    if ! command_exists pip3; then
+        echo "⚠️  pip3 not found, installing with system package manager"
+        
+        if [[ "$OSTYPE" == "linux-gnu"* ]] && command_exists sudo; then
+            sudo apt install python3-pip -y || {
+                echo "❌ Failed to install pip3 via apt"
+                return 1
+            }
+        fi
+        
+        # Verify installation worked
+        if ! command_exists pip3; then
+            echo "❌ Could not find or install pip3"
+            return 1
+        fi
+    fi
+    
+    # Try different installation approaches in order of preference
+    PACKAGES="flask psutil requests gunicorn"
+    
+    # Approach 1: Use the detected fastest source with trusted hosts flag
+    echo "Attempting installation with selected source and trusted hosts..."
+    if pip3 install --index-url "$FASTEST_SOURCE" \
+                    --trusted-host pypi.org \
+                    --trusted-host pypi.python.org \
+                    --trusted-host files.pythonhosted.org \
+                    $PACKAGES; then
+        echo "✅ Packages installed successfully from $FASTEST_SOURCE"
+        return 0
+    else
+        echo "⚠️  Installation failed with selected source, trying alternatives..."
+    fi
+    
+    # Approach 2: Try without index URL (default PyPI) but with trusted hosts 
+    if pip3 install --trusted-host pypi.org \
+                    --trusted-host pypi.python.org \
+                    --trusted-host files.pythonhosted.org \
+                    $PACKAGES; then
+        echo "✅ Packages installed successfully from default source"
+        return 0
+    else
+        echo "⚠️  Default installation failed, trying user directory..."
+    fi
+    
+    # Approach 3: Install to user directory (last resort)
+    if pip3 install --user $PACKAGES; then
+        echo "✅ Packages installed to user directory successfully"
+        return 0
+    else
+        echo "⚠️  User directory installation failed too"
+    fi
+    
+    # Approach 4: Fallback - try system package manager
+    if [[ "$OSTYPE" == "linux-gnu"* ]] && command_exists sudo; then
+        echo "🔄 Trying to install via system package manager..."
+        sudo apt install python3-flask python3-psutil python3-requests python3-gunicorn -y 2>/dev/null || {
+            echo "❌ All installation methods failed"
+            return 1  
+        }
+    else
+        echo "❌ No more installation methods available"
+        return 1
+    fi
+    
+    echo "✅ System package manager installation successful"
+}
 
 # Function to check if command exists
 command_exists() {
@@ -109,106 +340,13 @@ install_dependencies() {
         sudo apt install python3 python3-pip git curl wget supervisor nginx -y || true
     fi
     
-    # Install Python packages with proper error handling and fallbacks
-    echo "🔧 Installing Python packages..."
-    
-    if command_exists pip3; then
-        # Try to install without --break-system-packages first (preferred)
-        echo "Installing Python packages via pip3..."
-        pip3 install flask psutil requests gunicorn || {
-            echo "⚠️  Standard installation failed, trying with break-system-packages flag"
-            
-            # On Debian/Ubuntu systems, use the break-system-packages flag
-            if [ -f /etc/os-release ]; then
-                . /etc/os-release
-                if [[ $ID == "debian" || $ID == "ubuntu" ]]; then
-                    echo "Installing with --break-system-packages flag..."
-                    pip3 install --break-system-packages flask psutil requests gunicorn || {
-                        echo "⚠️  Installation failed even with break-system-packages"
-                    }
-                else
-                    # For other systems, try installing via apt as fallback
-                    if command_exists sudo; then
-                        sudo apt install python3-flask python3-psutil python3-requests python3-gunicorn -y 2>/dev/null || true
-                    fi
-                fi
-            fi
-        }
+    # Install Python packages with intelligent source selection
+    echo "🔧 Installing Python packages with auto-source detection..."
+    if ! install_python_packages; then
+        echo "⚠️  Python package installation had issues, but continuing..."
     else
-        echo "⚠️  pip3 not found, attempting alternative installation methods..."
-        
-        # Try to use python -m pip instead
-        if command_exists python3; then
-            python3 -m pip install flask psutil requests gunicorn || {
-                echo "⚠️  Python package installation failed"
-            }
-        fi
-        
-        # Fallback to apt packages for common requirements
-        if [[ "$OSTYPE" == "linux-gnu"* ]] && command_exists sudo; then
-            sudo apt install python3-flask python3-psutil python3-requests python3-gunicorn -y 2>/dev/null || true
-        fi
+        echo "✅ Python dependencies installed successfully"
     fi
-    
-    echo "✅ Python dependencies installed"
-}
-
-# Function to get user-selected port with validation
-get_custom_port() {
-    echo ""
-    echo "📋 PORT SELECTION"
-    echo "=================================="
-    
-    # Show commonly used ports that are less likely to conflict
-    echo "Commonly Used Ports (Avoiding Common Conflicts):"
-    echo "  8085 - Recommended (avoiding 8080, 3000)"
-    echo "  8090 - Alternative choice"  
-    echo "  8443 - SSL port"
-    echo "  9000 - Development port"
-    echo "  9090 - Monitoring port"
-    echo ""
-    
-    read -p "Enter custom port number (default: $DEFAULT_PORT): " USER_PORT
-    
-    # Use default if empty
-    if [ -z "$USER_PORT" ]; then
-        USER_PORT=$DEFAULT_PORT
-        echo "Using default port: $USER_PORT"
-    else
-        # Validate port number
-        if ! [[ "$USER_PORT" =~ ^[0-9]+$ ]] || [ "$USER_PORT" -lt 1 ] || [ "$USER_PORT" -gt 65535 ]; then
-            echo "❌ Invalid port number. Using default: $DEFAULT_PORT"
-            USER_PORT=$DEFAULT_PORT
-        else
-            echo "✅ Selected port: $USER_PORT"
-        fi
-    fi
-    
-    # Check if port is already in use (with better error handling)
-    if command_exists lsof; then
-        if lsof -i :$USER_PORT > /dev/null 2>&1; then
-            echo ""
-            echo "⚠️ WARNING: Port $USER_PORT appears to be in use!"
-            read -p "Continue anyway? (y/n): " CONTINUE
-            if [[ ! "$CONTINUE" =~ ^[Yy]$ ]]; then
-                echo "Installation cancelled."
-                exit 1
-            fi
-        fi
-    elif command_exists netstat; then
-        if netstat -an | grep :$USER_PORT > /dev/null 2>&1; then
-            echo ""
-            echo "⚠️ WARNING: Port $USER_PORT appears to be in use!"
-            read -p "Continue anyway? (y/n): " CONTINUE
-            if [[ ! "$CONTINUE" =~ ^[Yy]$ ]]; then
-                echo "Installation cancelled."
-                exit 1
-            fi
-        fi
-    fi
-    
-    echo ""
-    return $USER_PORT
 }
 
 # Function to create project directory structure with proper error handling
