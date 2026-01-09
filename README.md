@@ -66,3 +66,118 @@ sudo ./Install_RKOS_Mac.sh
 curl https://raw.githubusercontent.com/raksmeykang/rk_os/main/Install_RKOS_Windows.bat -o Install_RKOS_Windows.bat
 Install_RKOS_Windows.bat
 ```
+## Usage
+### Raspberry Pi: 
+```
+sudo systemctl start rkos-panel.service
+sudo systemctl enable rkos-panel.service
+```
+### Linux:
+```
+sudo systemctl start rkos-panel.service
+sudo systemctl enable rkos-panel.service
+```
+### macOS:
+```
+sudo launchctl load /Library/LaunchDaemons/com.rkos.panel.plist
+```
+### Windows
+Run the startup script or use Task Scheduler to auto-start.
+
+## Accessing the Dashboard
+```
+http://localhost:8085
+```
+```
+http://[your-server-ip]:8085
+```
+
+## Configuration
+### Port Selection
+The installer will automatically detect available ports or let you choose:
+
+Default port: 8085 (recommended)
+Alternative ports: 8090, 8443, 9000, 9090
+To specify a custom port during installation:
+```
+./install.sh
+```
+When prompted, enter your desired port number
+### Service Configuration
+Services are automatically configured with security features:
+- NoNewPrivileges: true
+- PrivateTmp: true
+- ProtectSystem: strict
+- ReadWritePaths: /opt/rkos-panel/rk_os/logs/
+- ReadOnlyPaths: /opt/rkos-panel/rk_os/src/
+
+## Troubleshooting
+Common Issues and Solutions
+1. Permission Denied Errors
+```
+# Fix permissions for your user
+sudo chown -R $USER:$USER /opt/rkos-panel
+```
+2. Port Already in Use
+The installer will automatically detect available ports or prompt you to choose a different one.
+
+3. Python Import Errors
+Ensure all dependencies are installed:
+```
+pip install --trusted-host pypi.org flask psutil requests gunicorn numpy scipy
+```
+4. Service Not Starting
+Check service status:
+```
+# Linux/Raspberry Pi
+sudo systemctl status rkos-panel.service
+
+# macOS
+sudo launchctl list | grep com.rkos.panel
+```
+## Directory
+```
+/opt/rkos-panel/
+├── rk_os/                  # Main application files
+│   ├── src/                # Source code
+│   │   ├── core/           # Core functionality
+│   │   ├── interfaces/     # API and UI interfaces  
+│   │   ├── kernel/         # System core
+│   │   ├── logic/          # Business logic
+│   │   └── monitoring/     # Monitoring components
+│   ├── config/             # Configuration files
+│   ├── data/               # Data storage
+│   └── logs/               # Log files
+├── start_rkos_*.sh         # Platform-specific startup scripts
+└── install.sh              # Main cross-platform installer
+```
+## Security Features
+All Platforms Include:
+- Secure File Permissions: Proper ownership and access controls
+- Service Isolation: Restricted service environments
+- Path Protection: Read-only paths for system files
+- Memory Management: Optimized memory usage for each platform
+Platform-Specific Security:
+- Raspberry Pi: ARM architecture optimized security
+- Linux: systemd security enhancements
+- macOS: launchd service protection
+- Windows: Windows ACL integration
+
+## Performance
+Raspberry Pi 5:
+- ARM architecture optimized packages
+- Reduced memory usage settings
+- Timeout optimizations for Pi performance
+- Resource-aware service configuration
+Linux:
+- Systemd timeout configurations
+- Memory-efficient service management
+- Optimized package installations
+macOS:
+- Launchd service optimization
+- macOS-specific path handling
+Windows:
+- Windows Service integration
+- Batch file optimization
+
+
