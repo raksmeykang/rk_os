@@ -26,7 +26,7 @@
 ### ⚙️ SERVICE MANAGEMENT (LINUX)
 Manage the background service using systemctl:
 * **Status:** `sudo systemctl status rkos-panel.service`
-* **Start/Stop/Restart:** Use `start`, `stop`, or `restart` with the service name above.
+* **Start/Stop/Restart:** Use `sudo` `start`, `stop`, or `restart` with `rkos-panel.service`
 * **Logs:** `sudo journalctl -u rkos-panel.service -f` or `tail -f /opt/rkos-panel/logs/*.log`.
 
 ### 🎯 PORT CUSTOMIZATION & TROUBLESHOOTING
@@ -39,6 +39,7 @@ The RK-OS Panel includes an interactive port selection during setup to avoid con
 
 ---
 **Author:** [KANG CHANDARARAKSMEY](https://github.com/raksmeykang) | ✅ RK-OS is ready for production use.
+
 
 
 
