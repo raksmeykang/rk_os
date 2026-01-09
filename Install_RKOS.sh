@@ -345,6 +345,12 @@ setup_project() {
     # Set proper permissions for the project files with comprehensive fix
     chmod +x src/interfaces/api.py 2>/dev/null || true
     
+    # 🔧 ADD THIS NEW PERMISSIONS FIX TO PREVENT FUTURE ISSUES:
+    echo "🔧 Setting proper file and directory permissions..."
+    find src/ -type d -exec chmod 755 {} \;
+    find src/ -name "*.py" -exec chmod 644 {} \;
+    chmod 755 src/interfaces/api.py
+    
     echo "✅ Project structure created at $INSTALL_DIR/rk_os"
 }
 
@@ -372,7 +378,6 @@ ExecStart=/usr/bin/python3 /opt/rkos-panel/rk_os/src/interfaces/api.py --port $U
 Restart=always
 RestartSec=10
 Environment=PYTHONPATH=/opt/rkos-panel/rk_os:/opt/rkos-panel/rk_os/src
-Environment=LOG_DIR=/opt/rkos-panel/logs/
 
 [Install]
 WantedBy=multi-user.target
